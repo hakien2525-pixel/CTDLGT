@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mô Phỏng Tìm Đường Ngắn Nhất - Dijkstra & A*</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <h1>HỆ THỐNG MÔ PHỎNG TÌM ĐƯỜNG ĐI NGẮN NHẤT TRÊN BẢN ĐỒ</h1>
+      <p class="subtitle">Đề tài 5: Giải thuật Dijkstra & A* | Cấu trúc dữ liệu thuần (Min-Heap, Graph, Hash Table) | ĐH Lạc Hồng</p>
+    </div>
+    <div class="header-right">
+      <span class="badge">Zero Libraries</span>
+      <span class="badge">Pure JS & Canvas</span>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    
+    <!-- SIDEBAR DIEU KHIEN -->
+    <aside class="sidebar">
+      <!-- PANEL 1: CHON DIEM & THUAT TOAN -->
+      <div class="panel">
+        <h3 class="panel-title">1. Chọn Điểm & Giải Thuật</h3>
+        <div class="form-group">
+          <label for="select-start">Điểm Bắt Đầu (Start):</label>
+          <select id="select-start" class="form-control"></select>
+        </div>
+        <div class="form-group">
+          <label for="select-end">Điểm Kết Thúc (End):</label>
+          <select id="select-end" class="form-control"></select>
+        </div>
+        <div class="button-group">
+          <button id="btn-run-dijkstra" class="btn btn-primary">Chạy Dijkstra</button>
+          <button id="btn-run-astar" class="btn btn-success">Chạy A*</button>
+          <button id="btn-run-compare" class="btn btn-warning">So Sánh Cả Hai</button>
+        </div>
+      </div>
+
+      <!-- PANEL 2: DIEU KHIEN ANIMATION TUNG BUOC -->
+      <div class="panel">
+        <h3 class="panel-title">2. Hoạt Ảnh Từng Bước (Animation)</h3>
+        <div class="step-controls">
+          <button id="btn-step-prev" class="btn btn-sm">❮ Lùi</button>
+          <button id="btn-step-play" class="btn btn-sm btn-primary">▶ Tự Chạy</button>
+          <button id="btn-step-pause" class="btn btn-sm btn-secondary" disabled>⏸ Dừng</button>
+          <button id="btn-step-next" class="btn btn-sm">Tiến ❯</button>
+          <button id="btn-step-reset" class="btn btn-sm btn-danger">↺ Reset</button>
+        </div>
+        <div class="form-group mt-2">
+          <label for="slider-speed">Tốc độ chạy: <span id="speed-label">300ms</span></label>
+          <input type="range" id="slider-speed" min="50" max="1000" step="50" value="300">
+        </div>
+        <div class="step-status">
+          Bước hiện tại: <span id="current-step-label">0 / 0</span>
+        </div>
+      </div>
+
+      <!-- PANEL 3: MO PHONG KET XE DONG -->
+      <div class="panel">
+        <h3 class="panel-title">3. Mô Phỏng Kẹt Xe Động</h3>
+        <p class="panel-desc">Click vào một tuyến đường trên bản đồ để chọn, sau đó kéo thanh trượt để nhân hệ số kẹt xe.</p>
+        <div class="form-group">
+          <label>Tuyến đường đang chọn:</label>
+          <div id="selected-edge-label" class="text-bold text-highlight">Chưa chọn tuyến đường nào</div>
+        </div>
+        <div class="form-group">
+          <label for="slider-traffic">Hệ số kẹt xe (k): <span id="traffic-label">1.0x (Bình thường)</span></label>
+          <input type="range" id="slider-traffic" min="1.0" max="5.0" step="0.2" value="1.0" disabled>
+        </div>
+        <button id="btn-reset-traffic" class="btn btn-sm btn-secondary w-100">Xóa Kẹt Xe (Về 1.0x)</button>
+      </div>
+
+      <!-- PANEL 4: QUAN LY BAN DO -->
+      <div class="panel">
+        <h3 class="panel-title">4. Công Cụ & Bản Đồ</h3>
+        <div class="tool-buttons">
+          <button id="btn-tool-select" class="btn btn-sm btn-tool active">Chuột Chọn</button>
+          <button id="btn-tool-add-node" class="btn btn-sm btn-tool">+ Thêm Đỉnh</button>
+          <button id="btn-tool-add-edge" class="btn btn-sm btn-tool">+ Nối Cạnh</button>
+          <button id="btn-tool-delete" class="btn btn-sm btn-tool btn-danger-tool">Xóa</button>
+        </div>
+        <div class="button-group mt-2">
+          <button id="btn-load-sample" class="btn btn-sm btn-secondary">Bản Đồ Mẫu (15 Nút)</button>
+          <button id="btn-gen-random" class="btn btn-sm btn-secondary">Sinh Ngẫu Nhiên (20-100 Nút)</button>
+        </div>
+        <div class="button-group mt-2">
+          <button id="btn-export-json" class="btn btn-sm">Xuất JSON</button>
+          <input type="file" id="file-import-json" style="display:none" accept=".json">
+          <button id="btn-import-json" class="btn btn-sm">Nạp JSON</button>
+          <button id="btn-fit-view" class="btn btn-sm">Vừa Khung</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER & RIGHT: BAN DO CANVAS VA BANG THEO DOI -->
+    <main class="content-area">
+      <!-- THONG BAO ALERT -->
+      <div id="alert-banner" class="alert-banner hidden"></div>
+
+      <!-- TABS CHUYEN DOI GIAO DIEN -->
+      <div class="view-tabs">
+        <button id="tab-btn-map" class="tab-btn active">🗺️ Bản Đồ & Trực Quan (Map View)</button>
+        <button id="tab-btn-chart" class="tab-btn">📊 Biểu Đồ & Thử Nghiệm Hiệu Năng (Benchmark View)</button>
+      </div>
+
+      <!-- VIEW 1: BAN DO CANVAS (MAC DINH) -->
+      <div id="view-map-container">
+        <!-- CANVAS KHUNG VE BAN DO -->
+        <div class="canvas-wrapper">
+          <canvas id="map-canvas" width="1000" height="520"></canvas>
+          <div class="map-zoom-controls">
+            <button id="btn-zoom-in" class="btn-zoom" title="Phóng to (Zoom in)">➕</button>
+            <button id="btn-zoom-reset" class="btn-zoom" title="Khôi phục góc nhìn ban đầu (Reset View)">🎯</button>
+            <button id="btn-zoom-out" class="btn-zoom" title="Thu nhỏ (Zoom out)">➖</button>
+          </div>
+          <div class="canvas-legend">
+            <span class="legend-item"><span class="legend-dot dot-normal"></span> Đỉnh chưa xét</span>
+            <span class="legend-item"><span class="legend-dot dot-queue"></span> Trong Min-Heap</span>
+            <span class="legend-item"><span class="legend-dot dot-current"></span> Đang xét</span>
+            <span class="legend-item"><span class="legend-dot dot-visited"></span> Đã chốt (Closed)</span>
+            <span class="legend-item"><span class="legend-line line-path"></span> Đường ngắn nhất</span>
+            <span class="legend-item"><span class="legend-line line-traffic"></span> Kẹt xe (k &gt; 1.0)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: THU NGHIEM QUY MO LON & BIEU DO SO SANH -->
+      <div id="view-chart-container" class="hidden">
+        <div class="benchmark-panel">
+          <div class="benchmark-header">
+            <h3>🔬 KIỂM THỬ HIỆU NĂNG TỰ ĐỘNG TRÊN CÁC KÍCH THƯỚC ĐỒ THỊ</h3>
+            <p>Tự động chạy kiểm thử Dijkstra vs A* trên các quy mô: 20 nút, 100 nút, 500 nút, 1.000 nút, 2.000 nút và vẽ biểu đồ cột đối chiếu trực quan.</p>
+          </div>
+          <div class="benchmark-controls">
+            <button id="btn-run-benchmark" class="btn btn-primary">🚀 Chạy Thử Nghiệm Tự Động (20 -> 2.000 Đỉnh)</button>
+            <button id="btn-export-benchmark-csv" class="btn btn-sm btn-secondary">Xuất CSV Benchmark</button>
+            <span id="benchmark-status" class="benchmark-status-text">Sẵn sàng kiểm thử</span>
+          </div>
+          <div class="benchmark-charts-grid">
+            <div class="chart-card">
+              <h4>1. Biểu Đồ So Sánh Số Nút Duyệt (Visited Nodes - A* duyệt ít hơn)</h4>
+              <canvas id="chart-benchmark-nodes" width="550" height="260"></canvas>
+            </div>
+            <div class="chart-card">
+              <h4>2. Biểu Đồ So Sánh Thời Gian Chạy (Execution Time - ms)</h4>
+              <canvas id="chart-benchmark-time" width="550" height="260"></canvas>
+            </div>
+          </div>
+          <div class="table-scroll mt-2">
+            <table class="data-table" id="table-benchmark">
+              <thead>
+                <tr>
+                  <th>Quy mô đồ thị</th>
+                  <th>Số cạnh</th>
+                  <th>Dijkstra (Nút)</th>
+                  <th>A* (Nút)</th>
+                  <th>Nút tiết kiệm</th>
+                  <th>Thời gian Dijkstra</th>
+                  <th>Thời gian A*</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="8" style="text-align:center;color:#64748b;">Nhấn nút 'Chạy Thử Nghiệm Tự Động' để bắt đầu đo lường</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SO SANH 2 COT DIJKSTRA VS A* & THEO DOI TUNG BUOC -->
+      <div class="comparison-container">
+        <!-- COT DIJKSTRA -->
+        <div class="algo-column">
+          <div class="algo-header header-dijkstra">
+            <h4>GIẢI THUẬT DIJKSTRA</h4>
+            <span id="dijkstra-summary-badge" class="badge">Chưa chạy</span>
+          </div>
+          <div class="algo-body">
+            <div class="metric-row">
+              <span>Tổng chi phí: <strong id="dijk-cost">-</strong></span>
+              <span>Số nút duyệt: <strong id="dijk-visited">-</strong></span>
+              <span>Thời gian: <strong id="dijk-time">-</strong></span>
+            </div>
+            <div class="trace-box">
+              <strong>Lộ trình:</strong> <span id="dijk-path">-</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table" id="table-dijkstra">
+                <thead>
+                  <tr>
+                    <th>Đỉnh</th>
+                    <th>dist[v]</th>
+                    <th>prev[v]</th>
+                    <th>Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- COT A* -->
+        <div class="algo-column">
+          <div class="algo-header header-astar">
+            <h4>GIẢI THUẬT A* (EUCLIDEAN HEURISTIC)</h4>
+            <span id="astar-summary-badge" class="badge">Chưa chạy</span>
+          </div>
+          <div class="algo-body">
+            <div class="metric-row">
+              <span>Tổng chi phí: <strong id="astar-cost">-</strong></span>
+              <span>Số nút duyệt: <strong id="astar-visited">-</strong></span>
+              <span>Thời gian: <strong id="astar-time">-</strong></span>
+            </div>
+            <div class="trace-box">
+              <strong>Lộ trình:</strong> <span id="astar-path">-</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table" id="table-astar">
+                <thead>
+                  <tr>
+                    <th>Đỉnh</th>
+                    <th>g(n)</th>
+                    <th>h(n)</th>
+                    <th>f(n)=g+h</th>
+                    <th>prev</th>
+                    <th>Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BIEU DO SO SANH CANVAS & GIAI THICH THUAT TOAN -->
+      <div class="extra-sections">
+        <div class="chart-section">
+          <h3>Biểu Đồ So Sánh Hiệu Năng (Vẽ Bằng Canvas Thuần)</h3>
+          <canvas id="chart-canvas" width="600" height="240"></canvas>
+        </div>
+        <div class="doc-section">
+          <h3>Giải Thích Thuật Toán & Hướng Dẫn Nhanh</h3>
+          <p><strong>1. Dijkstra:</strong> Mở rộng "vết dầu loang" từ đỉnh xuất phát theo mọi hướng với hàm khoảng cách tích lũy <em>g(v)</em>. Luôn đảm bảo tìm được đường đi ngắn nhất tối ưu nhưng duyệt nhiều đỉnh.</p>
+          <p><strong>2. A*:</strong> Bổ sung hàm heuristic dự đoán khoảng cách Euclid <em>h(n)</em> hướng thẳng về đích: <em>f(n) = g(n) + h(n)</em>. Do <em>h(n) &le; d*(n)</em> (tính Admissible), A* luôn tìm ra đường đi ngắn nhất chuẩn xác tương đương Dijkstra nhưng duyệt <strong>ít hơn đáng kể số nút</strong>.</p>
+          <p><strong>3. Kẹt xe giả lập:</strong> Khi trọng số <em>w</em> bị nhân thêm hệ số <em>k &ge; 1.0</em>, chi phí nhánh đó tăng vọt, các thuật toán sẽ tự động bẻ hướng sang cung đường khác.</p>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- MODAL DIALOG CHO THEM CANH / NHAP TRONG SO -->
+  <div id="edge-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modal-title">Thêm Tuyến Đường Mới</h3>
+      <div class="form-group">
+        <label>Khoảng cách (km):</label>
+        <input type="number" id="modal-edge-weight" class="form-control" value="10.0" min="0.1" step="0.5">
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="modal-edge-oneway"> Là đường một chiều (1 chiều)
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button id="modal-btn-confirm" class="btn btn-primary">Xác Nhận</button>
+        <button id="modal-btn-cancel" class="btn btn-secondary">Hủy Bỏ</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="graph_core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
