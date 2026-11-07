@@ -12,7 +12,7 @@ TC09_ONEWAY_BACKWARD,One-way Edge,Tu choi di nguoc chieu B -> A,inf,inf,PASS,0.0
 TC10_DISCONNECTED,Disconnected,Do thi mat lien thong (bao loi an toan),False,False,PASS,0.0000
 TC10B_BFS_CONNECTIVITY,BFS,Kiem tra tinh lien thong bang BFS,False (2/3 nut),False (2/3 nut),PASS,0.0000
 TC11_ASTAR_COST,A*,Chi phi A* bang tuyet doi Dijkstra,11.10,11.10,PASS,0.0000
-TC12_ASTAR_NODES,A*,So nut duyet cua A* <= Dijkstra,<= 4,4,PASS,0.0000
+TC12_ASTAR_NODES,A*,So nut duyet cua A* <= Dijkstra,<= 4,3,PASS,0.0000
 TC13_SAME_START_END,Edge Case,Diem bat dau trung diem ket thuc,Cost=0.0; Visited=1,Cost=0.0; Visited=1,PASS,0.0000
 TC14_TRAFFIC_REROUTING,Traffic Simulation,Tu dong doi huong khi ket xe tren tuyen cu,['S'; 'M2'; 'E'],['S'; 'M2'; 'E'],PASS,0.0000
 TC15_TRAFFIC_INVALID_K,Input Validation,Tu choi he so ket xe k < 1.0,False,False,PASS,0.0000
@@ -21,7 +21,7 @@ TC17_NON_EXIST_NODE,Robustness,Truy van nut khong ton tai,False,False,PASS,0.000
 TC18_NEWTON_SQRT,Math Robustness,Newton-Raphson can bac hai bien am va 0,sq=0; 0; 4,sq=0.0; 0.0; 4.0,PASS,0.0000
 TC18B_JSON_ROUNDTRIP,JSON,Bo parser JSON thuan chay khong import thu vien,True,True,PASS,0.0000
 TC19_200_RANDOM_PAIRS,Admissible Check,Kiem thu 200 cap ngau nhien (Cost Dijkstra == A*),True,True,PASS,0.0000
-TC20_PERF_100,Stress Test,Hieu nang quy mo 100 dinh: 100 dinh (Grid 10x10),Cost Dijkstra == Cost A*,Dijkstra=0.3ms (100 nut); A*=0.6ms (100 nut; giam 0.0%),PASS,0.9206
-TC21_PERF_1000,Stress Test,Hieu nang quy mo 1000 dinh: 1.000 dinh (Grid 20x50),Cost Dijkstra == Cost A*,Dijkstra=4.6ms (1000 nut); A*=5.8ms (1000 nut; giam 0.0%),PASS,10.3983
-TC22_PERF_5000,Stress Test,Hieu nang quy mo 5000 dinh: 5.000 dinh (Grid 50x100),Cost Dijkstra == Cost A*,Dijkstra=26.8ms (5000 nut); A*=32.4ms (5000 nut; giam 0.0%),PASS,59.2471
-TC23_PERF_20000,Stress Test,Hieu nang quy mo 20000 dinh: 20.000 dinh (Grid 100x200),Cost Dijkstra == Cost A*,Dijkstra=160.2ms (20000 nut); A*=192.2ms (20000 nut; giam 0.0%),PASS,352.3600
+TC20_PERF_100,Stress Test,Hieu nang quy mo 100 dinh: 100 dinh (Grid 10x10),Cost Dijkstra == Cost A*,Dijkstra=0.4ms (100 nut); A*=1.7ms (100 nut; giam 0.0%),PASS,2.1030
+TC21_PERF_1000,Stress Test,Hieu nang quy mo 1000 dinh: 1.000 dinh (Grid 20x50),Cost Dijkstra == Cost A*,Dijkstra=8.7ms (1000 nut); A*=19.5ms (1000 nut; giam 0.0%),PASS,28.2424
+TC22_PERF_5000,Stress Test,Hieu nang quy mo 5000 dinh: 5.000 dinh (Grid 50x100),Cost Dijkstra == Cost A*,Dijkstra=45.3ms (5000 nut); A*=82.9ms (5000 nut; giam 0.0%),PASS,128.2340
+TC23_PERF_20000,Stress Test,Hieu nang quy mo 20000 dinh: 20.000 dinh (Grid 100x200),Cost Dijkstra == Cost A*,Dijkstra=214.1ms (20000 nut); A*=703.6ms (20000 nut; giam 0.0%),PASS,917.7526

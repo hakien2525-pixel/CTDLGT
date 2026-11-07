@@ -239,16 +239,20 @@ class WebCityGraph {
     this.numEdges = 0;
   }
 
-  addNode(name, x, y) {
+  addNode(name, x = null, y = null) {
     const nameStr = String(name);
     if (this.nodeLookup.contains(nameStr)) {
       const idx = this.nodeLookup.get(nameStr);
-      this.nodeCoords[idx] = [Number(x), Number(y)];
+      if (x !== null && y !== null) {
+        this.nodeCoords[idx] = [Number(x), Number(y)];
+      }
       return idx;
     }
     const idx = this.numNodes;
     this.nodeNames.push(nameStr);
-    this.nodeCoords.push([Number(x), Number(y)]);
+    const cx = x !== null ? Number(x) : 0.0;
+    const cy = y !== null ? Number(y) : 0.0;
+    this.nodeCoords.push([cx, cy]);
     this.adj.push(null);
     this.nodeLookup.put(nameStr, idx);
     this.numNodes++;

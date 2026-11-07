@@ -25,15 +25,18 @@ class CityMapGraph:
         self.num_nodes: int = 0
         self.num_edges: int = 0
 
-    def add_node(self, name: Any, x: float = 0.0, y: float = 0.0) -> int:
+    def add_node(self, name: Any, x: Optional[float] = None, y: Optional[float] = None) -> int:
         name_str = str(name)
         if self.node_lookup.contains(name_str):
             idx = self.node_lookup.get(name_str)
-            self.node_coords[idx] = (float(x), float(y))
+            if x is not None and y is not None:
+                self.node_coords[idx] = (float(x), float(y))
             return idx
         idx = self.num_nodes
         self.node_names.append(name_str)
-        self.node_coords.append((float(x), float(y)))
+        cx = float(x) if x is not None else 0.0
+        cy = float(y) if y is not None else 0.0
+        self.node_coords.append((cx, cy))
         self.adj.append(None)
         self.node_lookup.put(name_str, idx)
         self.num_nodes += 1
